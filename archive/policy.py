@@ -260,4 +260,3 @@ class DRPolicy(object):
                     'KL': kl,
                     'Beta': self.beta,
                     '_lr_multiplier': self.lr_multiplier})
-

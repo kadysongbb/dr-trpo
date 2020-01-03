@@ -194,3 +194,4 @@ class DRPolicyContWass(object):
             int_obs = int_obs + ((obs[i]-self.lower_bound[i])*self.discretize_level)\
             //(self.upper_bound[i] - self.lower_bound[i])*(self.discretize_level**(self.sta_dim-i-1))
         return int(int_obs)
+        

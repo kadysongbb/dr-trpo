@@ -142,12 +142,14 @@ class DRPolicyWass(object):
 
 
     def calc_d(self, aj, ak):
+        """Calculate the distance between two actions."""
         if ak == aj:
             return 0
         else:
             return 1
 
     def find_best_k(self, beta, all_advantages):
+        """Find argmax_k {A(si, ak) - β*d(ak,aj)}."""
         best_k = [[0] * self.act_num for i in range(self.sta_num)]
         for i in range(self.sta_num):
             for j in range(self.act_num):
@@ -162,6 +164,7 @@ class DRPolicyWass(object):
         return best_k
 
     def find_opt_beta(self, delta, init_beta, all_advantages, disc_freqs, precision):
+        """Find optimal beta using gradient descent."""
         cur_beta = init_beta
         next_beta = init_beta + precision + 1e-3
         while abs(next_beta - cur_beta) > precision:
@@ -173,8 +176,4 @@ class DRPolicyWass(object):
                     gradient += -disc_freqs[i]*self.distributions[i][j]*self.calc_d(best_k[i][j], j)
             next_beta = cur_beta - 0.1*gradient
         return next_beta
-
-
-
-
-
+        
