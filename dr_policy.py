@@ -149,7 +149,7 @@ class DRPolicyWass(object):
             return 1
 
     def find_best_k(self, beta, all_advantages):
-        """Find argmax_k {A(si, ak) - β*d(ak,aj)}."""
+        """Find argmax_k {A(si,ak) - β*d(ak,aj)}."""
         best_k = [[0] * self.act_num for i in range(self.sta_num)]
         for i in range(self.sta_num):
             for j in range(self.act_num):
