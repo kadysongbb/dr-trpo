@@ -119,6 +119,24 @@ def add_gae(trajectories, gamma, lam):
         tds = rewards - values + np.append(values[1:] * gamma, 0)
         advantages = discount(tds, gamma * lam)
         trajectory['advantages'] = advantages
+
+
+def find_disc_freqs(trajectories, sta_num, gamma):
+    """ Esimate unnormalized discounted visitation frequencies. 
+
+    Args:
+        trajectories: as returned by run_policy(), must include 'values'
+            key from add_value().
+        gamma: reward discount
+    """
+    num_trajectories = len(trajectories)
+    disc_freqs = np.zeros(sta_num)
+    for trajectory in trajectories:
+        observes = trajectory['observes']
+        for i in range(len(observes)):
+            disc_freqs[observes[i]] += (gamma**i)/num_trajectories
+    return disc_freqs
+
         
 def build_train_set(trajectories):
     """

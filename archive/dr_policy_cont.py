@@ -158,7 +158,7 @@ class DRPolicyContWass(object):
         for i in range(self.sta_num):
             for j in range(self.act_num):
                 opt_k = 0
-                opt_val = self.calc_d(opt_k,j)
+                opt_val = all_advantages[i][opt_k] - beta*self.calc_d(opt_k,j)
                 for k in range(self.act_num):
                     cur_val = all_advantages[i][k] - beta*self.calc_d(k,j)
                     if cur_val > opt_val:

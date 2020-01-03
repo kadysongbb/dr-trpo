@@ -5,14 +5,14 @@ Distributionally Robust Policy Class
 Author: Jun Song (kadysongbb.github.io)
 
 Works with "Discrete" Observation Space, "Discrete" Action Space
-DRPolicy: Use KL Constraint. 
+DRPolicyKL: Use KL Constraint. 
 DRPolicyWass: Use Wasserstein Constraint. 
 """
 
 import numpy as np
 import random
 
-class DRPolicy(object):
+class DRPolicyKL(object):
     def __init__(self, sta_num, act_num):
         """
         Args:
@@ -100,13 +100,14 @@ class DRPolicyWass(object):
             if cdf >= cdf_sample:
                 return i
 
-    def update(self, observes, actions, advantages):
+    def update(self, observes, actions, advantages, disc_freqs):
         """ Update policy based on observations, actions and advantages
 
         Args:
             observes: observations, numpy array of size N
             actions: actions, numpy array of size N
             advantages: advantages, numpy array of size N
+            disc_freqs: discounted visitation frequencies, numpy array of size 'sta_num'
         """
         # reformulate advantages as a list of 'sta_num' arrays, each array has size 'act_num'
         # if advantage(si,aj) is not estimated by GAE, set it to zero
@@ -125,18 +126,8 @@ class DRPolicyWass(object):
                     all_advantages[i][j] = all_advantages[i][j]/count[i][j]
 
         # compute Qijk
-        beta = 10
-        best_k = [[0] * self.act_num for i in range(self.sta_num)]
-        for i in range(self.sta_num):
-            for j in range(self.act_num):
-                opt_k = 0
-                opt_val = self.calc_d(opt_k,j)
-                for k in range(self.act_num):
-                    cur_val = all_advantages[i][k] - beta*self.calc_d(k,j)
-                    if cur_val > opt_val:
-                        opt_k = k
-                        opt_val = cur_val
-                best_k[i][j] = opt_k
+        opt_beta = self.find_opt_beta(0.01, 0.01, all_advantages, disc_freqs, 0.01)
+        best_k = self.find_best_k(opt_beta, all_advantages)
 
         # compute the new policy 
         old_distributions = self.distributions
@@ -155,6 +146,35 @@ class DRPolicyWass(object):
             return 0
         else:
             return 1
+
+    def find_best_k(self, beta, all_advantages):
+        best_k = [[0] * self.act_num for i in range(self.sta_num)]
+        for i in range(self.sta_num):
+            for j in range(self.act_num):
+                opt_k = 0
+                opt_val = all_advantages[i][opt_k] - beta*self.calc_d(opt_k,j)
+                for k in range(self.act_num):
+                    cur_val = all_advantages[i][k] - beta*self.calc_d(k,j)
+                    if cur_val > opt_val:
+                        opt_k = k
+                        opt_val = cur_val
+                best_k[i][j] = opt_k
+        return best_k
+
+    def find_opt_beta(self, delta, init_beta, all_advantages, disc_freqs, precision):
+        cur_beta = init_beta
+        next_beta = init_beta + precision + 1e-3
+        while abs(next_beta - cur_beta) > precision:
+            cur_beta = next_beta
+            best_k = self.find_best_k(cur_beta, all_advantages)
+            gradient = delta 
+            for i in range(self.sta_num):
+                for j in range(self.act_num):
+                    gradient += -disc_freqs[i]*self.distributions[i][j]*self.calc_d(best_k[i][j], j)
+            next_beta = cur_beta - 0.1*gradient
+        return next_beta
+
+
 
 
 
