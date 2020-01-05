@@ -110,8 +110,8 @@ class DRPolicyWass(object):
             disc_freqs: discounted visitation frequencies, numpy array of size 'sta_num'
         """
         # reformulate advantages as a list of 'sta_num' arrays, each array has size 'act_num'
-        # if advantage(si,aj) is not estimated by GAE, set it to zero
-        # if advantage(si,aj) is estimated multiple times by GAE, set it to the average of estimates 
+        # if advantage(s,ai) is not estimated by GAE, set it to zero
+        # if advantage(s,ai) is estimated multiple times by GAE, set it to the average of estimates 
         all_advantages = []
         count = []
         for i in range(self.sta_num):
@@ -120,48 +120,48 @@ class DRPolicyWass(object):
         for i in range(len(observes)):
            all_advantages[observes[i]][actions[i]] += advantages[i]
            count[observes[i]][actions[i]] += 1
-        for i in range(self.sta_num):
-            for j in range(self.act_num):
-                if count[i][j] != 0:
-                    all_advantages[i][j] = all_advantages[i][j]/count[i][j]
+        for s in range(self.sta_num):
+            for i in range(self.act_num):
+                if count[s][i] != 0:
+                    all_advantages[s][i] = all_advantages[s][i]/count[s][i]
 
-        # compute Qijk
+        # compute Q
         opt_beta = self.find_opt_beta(0.01, 0.01, all_advantages, disc_freqs, 0.01)
-        best_k = self.find_best_k(opt_beta, all_advantages)
+        best_j = self.find_best_j(opt_beta, all_advantages)
 
         # compute the new policy 
         old_distributions = self.distributions
         self.distributions = []
         for i in range(self.sta_num):
             self.distributions.append(np.zeros(self.act_num))
-        for i in range(self.sta_num):
-            for k in range(self.act_num):
-                for j in range(self.act_num):
-                    if k == best_k[i][j]:
-                        self.distributions[i][k] += old_distributions[i][j]
+        for s in range(self.sta_num):
+            for j in range(self.act_num):
+                for i in range(self.act_num):
+                    if j == best_j[s][i]:
+                        self.distributions[s][j] += old_distributions[s][i]
 
 
-    def calc_d(self, aj, ak):
+    def calc_d(self, ai, aj):
         """Calculate the distance between two actions."""
-        if ak == aj:
+        if ai == aj:
             return 0
         else:
             return 1
 
-    def find_best_k(self, beta, all_advantages):
-        """Find argmax_k {A(si,ak) - β*d(ak,aj)}."""
-        best_k = [[0] * self.act_num for i in range(self.sta_num)]
-        for i in range(self.sta_num):
-            for j in range(self.act_num):
-                opt_k = 0
-                opt_val = all_advantages[i][opt_k] - beta*self.calc_d(opt_k,j)
-                for k in range(self.act_num):
-                    cur_val = all_advantages[i][k] - beta*self.calc_d(k,j)
+    def find_best_j(self, beta, all_advantages):
+        """Find argmax_j {A(s,aj) - β*d(aj,ai)}."""
+        best_j = [[0] * self.act_num for i in range(self.sta_num)]
+        for s in range(self.sta_num):
+            for i in range(self.act_num):
+                opt_j = 0
+                opt_val = all_advantages[s][opt_j] - beta*self.calc_d(opt_j,i)
+                for j in range(self.act_num):
+                    cur_val = all_advantages[s][j] - beta*self.calc_d(j,i)
                     if cur_val > opt_val:
-                        opt_k = k
+                        opt_j = j
                         opt_val = cur_val
-                best_k[i][j] = opt_k
-        return best_k
+                best_j[s][i] = opt_j
+        return best_j
 
     def find_opt_beta(self, delta, init_beta, all_advantages, disc_freqs, precision):
         """Find optimal beta using gradient descent."""
@@ -169,11 +169,11 @@ class DRPolicyWass(object):
         next_beta = init_beta + precision + 1e-3
         while abs(next_beta - cur_beta) > precision:
             cur_beta = next_beta
-            best_k = self.find_best_k(cur_beta, all_advantages)
+            best_j = self.find_best_j(cur_beta, all_advantages)
             gradient = delta 
-            for i in range(self.sta_num):
-                for j in range(self.act_num):
-                    gradient += -disc_freqs[i]*self.distributions[i][j]*self.calc_d(best_k[i][j], j)
+            for s in range(self.sta_num):
+                for i in range(self.act_num):
+                    gradient += -disc_freqs[s]*self.distributions[s][i]*self.calc_d(best_j[s][i], i)
             next_beta = cur_beta - 0.1*gradient
         return next_beta
         
