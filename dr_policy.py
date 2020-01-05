@@ -11,6 +11,7 @@ DRPolicyWass: Use Wasserstein Constraint.
 
 import numpy as np
 import random
+from sklearn.linear_model import LinearRegression
 
 class DRPolicyKL(object):
     def __init__(self, sta_num, act_num):
@@ -48,21 +49,29 @@ class DRPolicyKL(object):
             actions: actions, numpy array of size N
             advantages: advantages, numpy array of size N
         """
-        # reformulate advantages as a list of 'sta_num' arrays, each array has size 'act_num'
-        # if advantage(si,aj) is not estimated by GAE, set it to zero
-        # if advantage(si,aj) is estimated multiple times by GAE, set it to the average of estimates 
+        # advantage model
+        # reg = LinearRegression()
+        # reg.fit(np.array((observes, actions)).T, advantages)
+
+        # compute all advantages - a list of 'sta_num' arrays, each array has size 'act_num'
         all_advantages = []
         count = []
+        x = []
         for i in range(self.sta_num):
             all_advantages.append(np.zeros(self.act_num))
             count.append(np.zeros(self.act_num))
         for i in range(len(observes)):
            all_advantages[observes[i]][actions[i]] += advantages[i]
            count[observes[i]][actions[i]] += 1
-        for i in range(self.sta_num):
-            for j in range(self.act_num):
-                if count[i][j] != 0:
-                    all_advantages[i][j] = all_advantages[i][j]/count[i][j]
+        for s in range(self.sta_num):
+            for i in range(self.act_num):
+                if count[s][i] != 0:
+                    all_advantages[s][i] = all_advantages[s][i]/count[s][i]
+        #         else:
+        #             x.append([s,i])
+        # y = reg.predict(x)
+        # for i in range(len(y)):
+        #     all_advantages[x[i][0]][x[i][1]] = y[i]
 
         # compute the new policy
         beta = 1
@@ -109,11 +118,14 @@ class DRPolicyWass(object):
             advantages: advantages, numpy array of size N
             disc_freqs: discounted visitation frequencies, numpy array of size 'sta_num'
         """
-        # reformulate advantages as a list of 'sta_num' arrays, each array has size 'act_num'
-        # if advantage(s,ai) is not estimated by GAE, set it to zero
-        # if advantage(s,ai) is estimated multiple times by GAE, set it to the average of estimates 
+        # advantage model
+        # reg = LinearRegression()
+        # reg.fit(np.array((observes, actions)).T, advantages)
+
+        # compute all advantages - a list of 'sta_num' arrays, each array has size 'act_num'
         all_advantages = []
         count = []
+        x = []
         for i in range(self.sta_num):
             all_advantages.append(np.zeros(self.act_num))
             count.append(np.zeros(self.act_num))
@@ -124,6 +136,11 @@ class DRPolicyWass(object):
             for i in range(self.act_num):
                 if count[s][i] != 0:
                     all_advantages[s][i] = all_advantages[s][i]/count[s][i]
+        #         else:
+        #             x.append([s,i])
+        # y = reg.predict(x)
+        # for i in range(len(y)):
+        #     all_advantages[x[i][0]][x[i][1]] = y[i]
 
         # compute Q
         opt_beta = self.find_opt_beta(0.01, 0.01, all_advantages, disc_freqs, 0.01)
