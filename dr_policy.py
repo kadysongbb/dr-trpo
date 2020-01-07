@@ -41,7 +41,7 @@ class DRPolicyKL(object):
             if cdf >= cdf_sample:
                 return i
 
-    def update(self, observes, actions, advantages):
+    def update(self, observes, actions, advantages, disc_freqs):
         """ Update policy based on observations, actions and advantages
 
         Args:
@@ -74,12 +74,26 @@ class DRPolicyKL(object):
         #     all_advantages[x[i][0]][x[i][1]] = y[i]
 
         # compute the new policy
-        beta = 1
+        beta = self.find_opt_beta(0.1, all_advantages, disc_freqs, 0.01, 0.1, 0.01)
         old_distributions = self.distributions
-        for i in range(self.sta_num):
-            denom = np.sum(np.exp(all_advantages[i]/beta)*old_distributions[i])
-            self.distributions[i] = np.exp(all_advantages[i]/beta)*old_distributions[i]/denom
+        for s in range(self.sta_num):
+            denom = np.sum(np.exp(all_advantages[s]/beta)*old_distributions[s])
+            self.distributions[s] = np.exp(all_advantages[s]/beta)*old_distributions[s]/denom
 
+    def find_opt_beta(self, init_beta, all_advantages, disc_freqs, delta, gamma, precision):
+        """Find optimal beta using gradient descent."""
+        cur_beta = init_beta
+        next_beta = init_beta + precision + 1e-3
+        while abs(next_beta - cur_beta) > precision:
+            cur_beta = next_beta
+            gradient = delta
+            for s in range(self.sta_num):
+                gradient += disc_freqs[s]*np.log(np.sum(np.exp(all_advantages[s]/cur_beta)*self.distributions[s]))
+                numerator = np.sum(np.exp(all_advantages[s]/cur_beta)*all_advantages[s]*self.distributions[s])
+                denom = cur_beta*np.sum(np.exp(all_advantages[s]/cur_beta)*self.distributions[s])
+                gradient -= disc_freqs[s]*numerator/denom
+            next_beta = cur_beta - gamma*gradient
+        return next_beta
 
 class DRPolicyWass(object):
     def __init__(self, sta_num, act_num):
@@ -143,7 +157,7 @@ class DRPolicyWass(object):
         #     all_advantages[x[i][0]][x[i][1]] = y[i]
 
         # compute Q
-        opt_beta = self.find_opt_beta(0.01, 0.01, all_advantages, disc_freqs, 0.01)
+        opt_beta = self.find_opt_beta(0.1, all_advantages, disc_freqs, 0.01, 0.1, 0.01)
         best_j = self.find_best_j(opt_beta, all_advantages)
 
         # compute the new policy 
@@ -180,7 +194,7 @@ class DRPolicyWass(object):
                 best_j[s][i] = opt_j
         return best_j
 
-    def find_opt_beta(self, delta, init_beta, all_advantages, disc_freqs, precision):
+    def find_opt_beta(self, init_beta, all_advantages, disc_freqs, delta, gamma, precision):
         """Find optimal beta using gradient descent."""
         cur_beta = init_beta
         next_beta = init_beta + precision + 1e-3
@@ -191,6 +205,6 @@ class DRPolicyWass(object):
             for s in range(self.sta_num):
                 for i in range(self.act_num):
                     gradient += -disc_freqs[s]*self.distributions[s][i]*self.calc_d(best_j[s][i], i)
-            next_beta = cur_beta - 0.1*gradient
+            next_beta = cur_beta - gamma*gradient
         return next_beta
         
