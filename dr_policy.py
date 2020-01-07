@@ -74,17 +74,19 @@ class DRPolicyKL(object):
         #     all_advantages[x[i][0]][x[i][1]] = y[i]
 
         # compute the new policy
-        beta = self.find_opt_beta(0.1, all_advantages, disc_freqs, 0.01, 0.1, 0.01)
+        beta = self.find_opt_beta(0.1, all_advantages, disc_freqs, 0.01, 0.1, 1e-2, 1000)
         old_distributions = self.distributions
         for s in range(self.sta_num):
             denom = np.sum(np.exp(all_advantages[s]/beta)*old_distributions[s])
             self.distributions[s] = np.exp(all_advantages[s]/beta)*old_distributions[s]/denom
 
-    def find_opt_beta(self, init_beta, all_advantages, disc_freqs, delta, gamma, precision):
+    def find_opt_beta(self, init_beta, all_advantages, disc_freqs, delta, gamma, precision, max_iter):
         """Find optimal beta using gradient descent."""
         cur_beta = init_beta
         next_beta = init_beta + precision + 1e-3
-        while abs(next_beta - cur_beta) > precision:
+        for i in range(max_iter):
+            if abs(next_beta - cur_beta) <= precision:
+                break
             cur_beta = next_beta
             gradient = delta
             for s in range(self.sta_num):
@@ -157,7 +159,7 @@ class DRPolicyWass(object):
         #     all_advantages[x[i][0]][x[i][1]] = y[i]
 
         # compute Q
-        opt_beta = self.find_opt_beta(0.1, all_advantages, disc_freqs, 0.01, 0.1, 0.01)
+        opt_beta = self.find_opt_beta(0.1, all_advantages, disc_freqs, 0.01, 0.1, 1e-2, 1000)
         best_j = self.find_best_j(opt_beta, all_advantages)
 
         # compute the new policy 
@@ -193,11 +195,13 @@ class DRPolicyWass(object):
                 best_j[s][i] = opt_j
         return best_j
 
-    def find_opt_beta(self, init_beta, all_advantages, disc_freqs, delta, gamma, precision):
+    def find_opt_beta(self, init_beta, all_advantages, disc_freqs, delta, gamma, precision, max_iter):
         """Find optimal beta using gradient descent."""
         cur_beta = init_beta
         next_beta = init_beta + precision + 1e-3
-        while abs(next_beta - cur_beta) > precision:
+        for i in range(max_iter):
+            if abs(next_beta - cur_beta) <= precision:
+                break
             cur_beta = next_beta
             best_j = self.find_best_j(cur_beta, all_advantages)
             gradient = delta 
