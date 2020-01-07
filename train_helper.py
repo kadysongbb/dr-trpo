@@ -174,3 +174,4 @@ def log_batch_stats(observes, actions, advantages, disc_sum_rew, episode, logger
                 '_std_discrew': np.var(disc_sum_rew),
                 '_Episode': episode
                 })
+    
