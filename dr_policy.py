@@ -171,7 +171,6 @@ class DRPolicyWass(object):
                     if j == best_j[s][i]:
                         self.distributions[s][j] += old_distributions[s][i]
 
-
     def calc_d(self, ai, aj):
         """Calculate the distance between two actions."""
         if ai == aj:

@@ -35,7 +35,6 @@ def run_episode(env, policy, animate=False):
         rewards.append(reward)
     return (np.asarray(observes), np.asarray(actions), np.array(rewards, dtype=np.float32))
 
-
 def run_policy(env, policy, episodes, logger):
     """ Run policy and collect data for a minimum of min_steps and min_episodes
 
@@ -63,7 +62,6 @@ def discount(x, gamma):
     """ Calculate discounted forward sum of a sequence at each point """
     return scipy.signal.lfilter([1.0], [1.0, -gamma], x[::-1])[::-1]
 
-
 def add_disc_sum_rew(trajectories, gamma, logger):
     """ Adds discounted sum of rewards to all time steps of all trajectories
 
@@ -79,7 +77,6 @@ def add_disc_sum_rew(trajectories, gamma, logger):
         disc_sum_rew = discount(rewards, gamma)
         trajectory['disc_sum_rew'] = disc_sum_rew
     logger.log({'_AvgDiscountedRewardSum': np.mean([t['disc_sum_rew'][0] for t in trajectories])})
-
 
 def add_value(trajectories, val_func):
     """ Adds estimated value to all time steps of all trajectories
@@ -120,7 +117,6 @@ def add_gae(trajectories, gamma, lam):
         advantages = discount(tds, gamma * lam)
         trajectory['advantages'] = advantages
 
-
 def find_disc_freqs(trajectories, sta_num, gamma):
     """ Esimate unnormalized discounted visitation frequencies. 
 
@@ -136,7 +132,6 @@ def find_disc_freqs(trajectories, sta_num, gamma):
         for i in range(len(observes)):
             disc_freqs[observes[i]] += (gamma**i)/num_trajectories
     return disc_freqs
-
         
 def build_train_set(trajectories):
     """
