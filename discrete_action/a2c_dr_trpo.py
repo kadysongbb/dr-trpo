@@ -79,7 +79,7 @@ class DRTRPOAgent1():
 
 
     def compute_policy_loss(self, state, state_adv):
-        beta = 0.5
+        beta = 1
         state = torch.FloatTensor(state).to(self.device)
         logits = self.policy_network.forward(state)
         pi_dist = logits
