@@ -32,14 +32,9 @@ class DRPolicyKL(object):
         """Draw sample from policy."""
         # an array of size 'act_num'
         distribution = self.distributions[obs];
-        # sample a cumulative probability
-        cdf_sample = random.random();
-        # sample the action using the cumulative probability
-        cdf = 0
-        for i in range(len(distribution)):
-            cdf += distribution[i]
-            if cdf >= cdf_sample:
-                return i
+        # sample an action
+        action = np.random.choice(self.act_num, 1, p=distribution)
+        return action
 
     def update(self, observes, actions, advantages, disc_freqs):
         """ Update policy based on observations, actions and advantages
@@ -49,11 +44,6 @@ class DRPolicyKL(object):
             actions: actions, numpy array of size N
             advantages: advantages, numpy array of size N
         """
-        # advantage model
-        # reg = LinearRegression()
-        # reg.fit(np.array((observes, actions)).T, advantages)
-
-        # compute all advantages - a list of 'sta_num' arrays, each array has size 'act_num'
         all_advantages = []
         count = []
         x = []
@@ -67,11 +57,6 @@ class DRPolicyKL(object):
             for i in range(self.act_num):
                 if count[s][i] != 0:
                     all_advantages[s][i] = all_advantages[s][i]/count[s][i]
-        #         else:
-        #             x.append([s,i])
-        # y = reg.predict(x)
-        # for i in range(len(y)):
-        #     all_advantages[x[i][0]][x[i][1]] = y[i]
 
         # compute the new policy
         beta = self.find_opt_beta(0.1, all_advantages, disc_freqs, 0.01, 0.1, 1e-2, 1000)
@@ -116,14 +101,9 @@ class DRPolicyWass(object):
         """Draw sample from policy."""
         # an array of size 'act_num'
         distribution = self.distributions[obs];
-        # sample a cumulative probability
-        cdf_sample = random.random();
-        # sample the action using the cumulative probability
-        cdf = 0
-        for i in range(len(distribution)):
-            cdf += distribution[i]
-            if cdf >= cdf_sample:
-                return i
+        # sample an action
+        action = np.random.choice(self.act_num,1,p=distribution)
+        return action
 
     def update(self, observes, actions, advantages, disc_freqs):
         """ Update policy based on observations, actions and advantages
@@ -134,11 +114,6 @@ class DRPolicyWass(object):
             advantages: advantages, numpy array of size N
             disc_freqs: discounted visitation frequencies, numpy array of size 'sta_num'
         """
-        # advantage model
-        # reg = LinearRegression()
-        # reg.fit(np.array((observes, actions)).T, advantages)
-
-        # compute all advantages - a list of 'sta_num' arrays, each array has size 'act_num'
         all_advantages = []
         count = []
         x = []
@@ -152,11 +127,6 @@ class DRPolicyWass(object):
             for i in range(self.act_num):
                 if count[s][i] != 0:
                     all_advantages[s][i] = all_advantages[s][i]/count[s][i]
-        #         else:
-        #             x.append([s,i])
-        # y = reg.predict(x)
-        # for i in range(len(y)):
-        #     all_advantages[x[i][0]][x[i][1]] = y[i]
 
         # compute Q
         opt_beta = self.find_opt_beta(0.05, all_advantages, disc_freqs, 0.01, 0.1, 1e-2, 1000)
