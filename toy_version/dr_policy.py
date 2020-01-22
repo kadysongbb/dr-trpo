@@ -34,7 +34,7 @@ class DRPolicyKL(object):
         distribution = self.distributions[obs];
         # sample an action
         action = np.random.choice(self.act_num, 1, p=distribution)
-        return action
+        return action[0]
 
     def update(self, observes, actions, advantages, disc_freqs):
         """ Update policy based on observations, actions and advantages
