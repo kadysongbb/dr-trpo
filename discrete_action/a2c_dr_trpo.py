@@ -31,9 +31,9 @@ class DRTRPOAgent1():
         probs = Categorical(dist)
         return probs.sample().cpu().detach().item()
 
-    def compute_adv_first_sa(self, trajectory):
+    def compute_adv_mc(self, trajectory):
         """
-        Compute the advantage of the first state, action pair in the trajectory.
+        Compute the advantage of all (st,at) in trajectory.
         The advantage is estimated using MC: i.e. discounted reward sum (from trajectory) - value (from NN)
         """
         states = torch.FloatTensor([sars[0] for sars in trajectory]).to(self.device)
@@ -52,11 +52,11 @@ class DRTRPOAgent1():
         value_loss = F.mse_loss(values, value_targets.detach())
 
         advantages = value_targets - values
-        return advantages[0], value_loss
+        return advantages, value_loss
 
-    def compute_adv(self, state, next_state, reward):
+    def compute_adv_td(self, state, next_state, reward):
         """
-        Compute the advantage using TD method: i.e. r + v(s') - v(s) - depends highly on the accuracy of NN
+        Compute the advantage of a single (s,a) using TD: i.e. r + v(s') - v(s) - depends highly on the accuracy of NN
         """
         state = torch.FloatTensor(state).to(self.device)
         next_state = torch.FloatTensor(next_state).to(self.device)
@@ -67,7 +67,20 @@ class DRTRPOAgent1():
         advantage = value_target - state_value
         value_loss = F.mse_loss(state_value, value_target)
         return advantage, value_loss
-    
+
+    def compute_policy_loss(self, state, state_adv):
+        """
+        Policy loss of DR TRPO (KL Constraint).
+        """
+        state = torch.FloatTensor(state).to(self.device)
+        logits = self.policy_network.forward(state)
+        pi_dist = logits
+        state_adv = torch.FloatTensor(state_adv).to(self.device)
+        beta = 1
+        denom = torch.sum(torch.exp(state_adv/beta)*pi_dist)
+        new_pi_dist = torch.exp(state_adv/beta)*pi_dist/denom
+        return F.mse_loss(pi_dist, new_pi_dist)
+
     def update(self, value_loss, policy_loss):
         self.value_optimizer.zero_grad()
         value_loss.backward()
@@ -76,14 +89,3 @@ class DRTRPOAgent1():
         self.policy_optimizer.zero_grad()
         policy_loss.backward()
         self.policy_optimizer.step()
-
-
-    def compute_policy_loss(self, state, state_adv):
-        beta = 1
-        state = torch.FloatTensor(state).to(self.device)
-        logits = self.policy_network.forward(state)
-        pi_dist = logits
-        state_adv = torch.FloatTensor(state_adv).to(self.device)
-        denom = torch.sum(torch.exp(state_adv/beta)*pi_dist)
-        new_pi_dist = torch.exp(state_adv/beta)*pi_dist/denom
-        return F.mse_loss(pi_dist, new_pi_dist)
