@@ -6,8 +6,10 @@ from torch.distributions import Categorical
 from models import ValueNetwork, PolicyNetwork
 
 
-class DRTRPOAgent1():
-
+class DRTRPOAgent():
+    """
+    DR TRPO - KL Constraint
+    """
     def __init__(self, env, gamma, lr):
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         
@@ -68,7 +70,7 @@ class DRTRPOAgent1():
         value_loss = F.mse_loss(state_value, value_target)
         return advantage, value_loss
 
-    def compute_policy_loss(self, state, state_adv):
+    def compute_policy_loss_kl(self, state, state_adv):
         """
         Policy loss of DR TRPO (KL Constraint).
         """
@@ -80,6 +82,42 @@ class DRTRPOAgent1():
         denom = torch.sum(torch.exp(state_adv/beta)*pi_dist)
         new_pi_dist = torch.exp(state_adv/beta)*pi_dist/denom
         return F.mse_loss(pi_dist, new_pi_dist)
+
+    def compute_policy_loss_wass(self, state, state_adv):
+        """
+        Policy loss of DR TRPO (Wasserstein Constraint).
+        """
+        state = torch.FloatTensor(state).to(self.device)
+        logits = self.policy_network.forward(state)
+        pi_dist = logits
+        state_adv = torch.FloatTensor(state_adv).to(self.device)
+
+        beta = 0.3
+        """Find argmax_j {A(s,aj) - β*d(aj,ai)}."""
+        best_j = []
+        for i in range(self.action_dim):
+            opt_j = 0
+            opt_val = state_adv[opt_j] - beta*self.compute_distance(opt_j,i)
+            for j in range(self.action_dim):
+                cur_val = state_adv[j] - beta*self.compute_distance(j,i)
+                if cur_val > opt_val:
+                    opt_j = j
+                    opt_val = cur_val
+            best_j.append(opt_j)
+        
+        new_pi_dist = torch.zeros(self.action_dim)
+        for j in range(self.action_dim):
+            for i in range(self.action_dim):
+                if j == best_j[i]:
+                    new_pi_dist[j] += pi_dist[i]
+
+        return F.mse_loss(pi_dist, new_pi_dist)
+
+    def compute_distance(self, a1, a2):
+        if a1 == a2:
+            return 0 
+        else:
+            return 1
 
     def update(self, value_loss, policy_loss):
         self.value_optimizer.zero_grad()
