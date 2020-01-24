@@ -96,14 +96,14 @@ class DRPolicyWass(object):
         self.distributions = []
         for i in range(sta_num):
             self.distributions.append(np.ones(act_num)/act_num)
-
+            
     def sample(self, obs):
         """Draw sample from policy."""
         # an array of size 'act_num'
         distribution = self.distributions[obs];
         # sample an action
-        action = np.random.choice(self.act_num,1,p=distribution)
-        return action
+        action = np.random.choice(self.act_num, 1, p=distribution)
+        return action[0]
 
     def update(self, observes, actions, advantages, disc_freqs):
         """ Update policy based on observations, actions and advantages
