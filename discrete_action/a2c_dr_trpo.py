@@ -92,7 +92,7 @@ class DRTRPOAgent():
         pi_dist = logits
         state_adv = torch.FloatTensor(state_adv).to(self.device)
 
-        beta = 0.3
+        beta = 0
         """Find argmax_j {A(s,aj) - β*d(aj,ai)}."""
         best_j = []
         for i in range(self.action_dim):
