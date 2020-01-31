@@ -17,7 +17,6 @@ class ValueNetwork(nn.Module):
 
         return value
     
-
 class PolicyNetwork(nn.Module):
 
     def __init__(self, input_dim, output_dim):
@@ -30,3 +29,4 @@ class PolicyNetwork(nn.Module):
         logits = F.softmax(self.fc2(logits), dim = 0)
 
         return logits
+        
