@@ -6,7 +6,7 @@
 * Modified based on https://github.com/pat-coady/trpo
 * Value is trained on discounted reward sum
 * Advantage is estimated with GAE
-* Policy is not parametrized (i.e. no Neural Network for policies). 
+* Policy is not parametrized (i.e. no Neural Network for policies). It's represented as a list that contains PMF of π(a|s) for all states. 
 
 ### Classic Control: 
 * Three algorithms implemented: DR TRPO KL, DR TRPO Wasserstein, A2C (baseline)
