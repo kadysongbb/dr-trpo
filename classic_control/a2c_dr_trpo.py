@@ -9,7 +9,7 @@ from models import ValueNetwork, PolicyNetwork
 
 class DRTRPOAgent():
     """
-    DR TRPO - KL Constraint
+    DR TRPO 
     """
     def __init__(self, env, gamma, lr):
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
