@@ -132,7 +132,7 @@ class DRPolicyWass(object):
         # compute Q
         opt_beta = self.find_opt_beta(0.5, all_advantages, disc_freqs, 0.01, 0.1, 1e-2, 1000)
         # opt_beta = self.find_opt_beta2(all_advantages)
-        # opt_beta = 1
+        # opt_beta = 0.5
         best_j = self.find_best_j(opt_beta, all_advantages)
 
         # compute the new policy 
