@@ -10,7 +10,6 @@ DRPolicyWass: Use Wasserstein Constraint.
 """
 
 import numpy as np
-import random
 from sklearn.linear_model import LinearRegression
 
 class DRPolicyKL(object):
@@ -106,7 +105,7 @@ class DRPolicyWass(object):
         action = np.random.choice(self.act_num, 1, p=distribution)
         return action[0]
 
-    def update(self, observes, actions, advantages, disc_freqs):
+    def update(self, observes, actions, advantages, disc_freqs, env_name):
         """ Update policy based on observations, actions and advantages
 
         Args:
@@ -114,6 +113,7 @@ class DRPolicyWass(object):
             actions: actions, numpy array of size N
             advantages: advantages, numpy array of size N
             disc_freqs: discounted visitation frequencies, numpy array of size 'sta_num'
+            env_name: name of the environment
         """
         all_advantages = []
         count = []
@@ -130,9 +130,14 @@ class DRPolicyWass(object):
                     all_advantages[s][i] = all_advantages[s][i]/count[s][i]
 
         # compute Q
-        opt_beta = self.find_opt_beta(0.5, all_advantages, disc_freqs, 0.01, 0.1, 1e-2, 1000)
+        # opt_beta = self.find_opt_beta(0.5, all_advantages, disc_freqs, 0.01, 0.1, 1e-2, 1000)
         # opt_beta = self.find_opt_beta2(all_advantages)
-        # opt_beta = 0.5
+        if 'Taxi' in env_name:
+            opt_beta = 2 + 0.8*(np.random.random() - 0.5)
+        if 'Chain' in env_name:
+            opt_beta = 0.5
+        if 'Cliff' in env_name:
+            opt_beta = 0.5
         best_j = self.find_best_j(opt_beta, all_advantages)
 
         # compute the new policy 
