@@ -35,6 +35,31 @@ def run_episode(env, policy, animate=False):
         rewards.append(reward)
     return (np.asarray(observes), np.asarray(actions), np.array(rewards, dtype=np.float32))
 
+def episode_stats(env, policy):
+    """ Gather Episode Statistics - Just for Taxi Environment
+
+    Args:
+        env: ai gym environment
+        policy: policy object with sample() method
+    """
+    obs = env.reset()
+    observes, actions, rewards = [], [], []
+    done = False
+    illegal_action_count = 0
+    success_dropoff_count = 0
+    while not done:
+        env.render() 
+        observes.append(obs)
+        action = policy.sample(obs)
+        actions.append(action)
+        obs, reward, done, _ = env.step(action)
+        rewards.append(reward)
+        if reward == -10:
+            illegal_action_count += 1
+        if reward == 20:
+            success_dropoff_count += 1
+    return illegal_action_count, success_dropoff_count, len(rewards)
+
 def run_policy(env, policy, episodes, logger):
     """ Run policy and collect data for a minimum of min_steps and min_episodes
 
