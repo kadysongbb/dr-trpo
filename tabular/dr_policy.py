@@ -82,7 +82,6 @@ class DRPolicyKL(object):
         print(beta)
 
         # compute the new policy
-        # beta = self.find_opt_beta(0.1, all_advantages, disc_freqs, 0.01, 0.1, 1e-2, 1000)
         old_distributions = self.distributions
         for s in range(self.sta_num):
             denom = np.sum(np.exp(all_advantages[s]/beta)*old_distributions[s])
