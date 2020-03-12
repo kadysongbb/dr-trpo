@@ -7,5 +7,5 @@
 
 ### Classic Control: 
 * Three algorithms implemented: DR TRPO KL, DR TRPO Wasserstein, A2C (baseline)
-* This version can run on OpenAI Gym classic control environment. Parameters in the implemention are set up specifically for 'CartPole-v1' environment. 
+* This version can run on OpenAI Gym classic control environment. 
 * Policy is parameterized as a neural net that maps from state s to the PMF of π(a|s).
