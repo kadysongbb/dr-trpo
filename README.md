@@ -1,4 +1,4 @@
-## Dristributionally Robust Trust Region Policy Optimization 
+## Dristributionally Robust Policy Optimization 
 
 ### Tabular: 
 * Two algorithms implemented: DR TRPO KL, DR TRPO Wasserstein
