@@ -161,7 +161,6 @@ class DRPolicyWass(object):
                     objective += disc_freqs[s]*self.distributions[s][i]*(all_advantages[s][opt_j] - beta*self.calc_d(opt_j, i))
             return  objective
 
-
         # if 'Taxi' in env_name:
         #     opt_beta = 2 + 0.8*(np.random.random() - 0.5)
         # if 'Chain' in env_name:
