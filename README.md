@@ -1,4 +1,4 @@
-## Dristributionally Robust Policy Optimization 
+## Dristributionally Robust Policy Optimization (DRPO)
 
 ### Tabular: 
 * Two algorithms implemented: DRPO KL, DRPO Wasserstein
