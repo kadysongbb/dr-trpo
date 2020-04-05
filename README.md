@@ -8,4 +8,4 @@
 ### Classic Control: 
 * Three algorithms implemented: DR TRPO KL, DR TRPO Wasserstein, A2C (baseline)
 * This version can run on OpenAI Gym classic control environment. 
-* Policy is parameterized as a neural net that maps from state s to the PMF of π(a|s).
+* Policy is parameterized as a neural net that maps from state s to the PMF of π(a|s) when action space is discrete.
