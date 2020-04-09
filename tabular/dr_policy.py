@@ -79,7 +79,7 @@ class DRPolicyKL(object):
         beta = optimize.basinhopping(objective, 0.5, minimizer_kwargs=minimizer_kwargs,
               niter=20)
         beta = beta.x[0]
-        print(beta)
+        print('optimal beta is: ' + str(beta))
 
         # compute the new policy
         old_distributions = self.distributions
@@ -112,7 +112,7 @@ class DRPolicyWass(object):
         action = np.random.choice(self.act_num, 1, p=distribution)
         return action[0]
 
-    def update(self, observes, actions, advantages, disc_freqs, env_name):
+    def update(self, observes, actions, advantages, disc_freqs, env_name, eps):
         """ Update policy based on observations, actions and advantages
 
         Args:
@@ -129,8 +129,8 @@ class DRPolicyWass(object):
             all_advantages.append(np.zeros(self.act_num))
             count.append(np.zeros(self.act_num))
         for i in range(len(observes)):
-           all_advantages[observes[i]][actions[i]] += advantages[i]
-           count[observes[i]][actions[i]] += 1
+            all_advantages[observes[i]][actions[i]] += advantages[i]
+            count[observes[i]][actions[i]] += 1
         for s in range(self.sta_num):
             for i in range(self.act_num):
                 if count[s][i] != 0:
@@ -161,21 +161,22 @@ class DRPolicyWass(object):
                     objective += disc_freqs[s]*self.distributions[s][i]*(all_advantages[s][opt_j] - beta*self.calc_d(opt_j, i))
             return  objective
 
-        # if 'Taxi' in env_name:
-        #     opt_beta = 2 + 0.8*(np.random.random() - 0.5)
-        # if 'Chain' in env_name:
-        #     opt_beta = 0.5
-        # if 'Cliff' in env_name:
-        #     opt_beta = 0.5
-        # best_j = self.find_best_j(opt_beta, all_advantages)
 
-        rranges = [(0,4)]
-        beta = optimize.dual_annealing(objective, rranges, maxiter = 20)
-        beta = beta.x[0]
-        print(beta)
+        if 'Taxi' in env_name:
+            opt_beta = 2 + 0.8*(np.random.random() - 0.5)
+        if 'Chain' in env_name:
+            opt_beta = 0.5
+        if 'Cliff' in env_name:
+            opt_beta = 0.5
+
+        if eps <= 1000:
+            rranges = [(0,4)]
+            beta = optimize.dual_annealing(objective, rranges, maxiter = 20)
+            opt_beta = beta.x[0]
+            print('optimal beta is: ' + str(opt_beta))
 
         # Q
-        best_j = find_best_j(beta)
+        best_j = find_best_j(opt_beta)
         # compute the new policy
         old_distributions = self.distributions
         self.distributions = []
