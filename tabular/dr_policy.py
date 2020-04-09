@@ -52,8 +52,8 @@ class DRPolicyKL(object):
             all_advantages.append(np.zeros(self.act_num))
             count.append(np.zeros(self.act_num))
         for i in range(len(observes)):
-           all_advantages[observes[i]][actions[i]] += advantages[i]
-           count[observes[i]][actions[i]] += 1
+            all_advantages[observes[i]][actions[i]] += advantages[i]
+            count[observes[i]][actions[i]] += 1
         for s in range(self.sta_num):
             for i in range(self.act_num):
                 if count[s][i] != 0:
@@ -73,7 +73,6 @@ class DRPolicyKL(object):
             for s in range(self.sta_num):
                 objective += beta*disc_freqs[s]*np.log(np.sum(np.exp(all_advantages[s]/beta)*self.distributions[s]))
             return objective
-
 
         minimizer_kwargs = {"method": "BFGS", "jac": gradient}
         beta = optimize.basinhopping(objective, 0.5, minimizer_kwargs=minimizer_kwargs,
@@ -136,7 +135,6 @@ class DRPolicyWass(object):
                 if count[s][i] != 0:
                     all_advantages[s][i] = all_advantages[s][i]/count[s][i]
 
-
         def find_best_j(beta):
             """Find argmax_j {A(s,aj) - β*d(aj,ai)}."""
             best_j = [[0] * self.act_num for i in range(self.sta_num)]
@@ -160,7 +158,6 @@ class DRPolicyWass(object):
                     opt_j = best_j[s][i]
                     objective += disc_freqs[s]*self.distributions[s][i]*(all_advantages[s][opt_j] - beta*self.calc_d(opt_j, i))
             return  objective
-
 
         if 'Taxi' in env_name:
             opt_beta = 2 + 0.8*(np.random.random() - 0.5)
