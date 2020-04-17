@@ -37,7 +37,7 @@ class DRPolicyKL(object):
         action = np.random.choice(self.act_num, 1, p=distribution)
         return action[0]
 
-    def update(self, observes, actions, advantages, disc_freqs, env_name):
+    def update(self, observes, actions, advantages, disc_freqs, env_name, eps):
         """ Update policy based on observations, actions and advantages
 
         Args:
@@ -74,11 +74,17 @@ class DRPolicyKL(object):
                 objective += beta*disc_freqs[s]*np.log(np.sum(np.exp(all_advantages[s]/beta)*self.distributions[s]))
             return objective
 
-        minimizer_kwargs = {"method": "BFGS", "jac": gradient}
-        beta = optimize.basinhopping(objective, 0.5, minimizer_kwargs=minimizer_kwargs,
-              niter=20)
-        beta = beta.x[0]
-        print('optimal beta is: ' + str(beta))
+        if env_name !=  "Taxi-v3":
+            beta = 1
+        else:
+            if eps < 500:
+                minimizer_kwargs = {"method": "BFGS", "jac": gradient}
+                beta = optimize.basinhopping(objective, 0.5, minimizer_kwargs=minimizer_kwargs,
+                    niter=20)
+                beta = beta.x[0]
+                print('optimal beta is: ' + str(beta))
+            else:
+                beta = 3 + 0.8*(np.random.random() - 0.5)
 
         # compute the new policy
         old_distributions = self.distributions
