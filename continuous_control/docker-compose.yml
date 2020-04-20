@@ -1,0 +1,12 @@
+version: '3.1'
+
+services:
+  gac-service:
+    build:
+      context: ./
+      dockerfile: ./Dockerfile
+    volumes:
+      - ./:/usr/src/app/
+    environment:
+      ENVIRONMENT: LOCAL_DOCKER
+      PORT: 8080
