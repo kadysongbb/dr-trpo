@@ -7,11 +7,13 @@
 
 ![Performance Graph 1](tabular.png?raw=true)
 
-### Discrete Control: 
+### Locomotion Tasks:
+#### Discrete Control: 
 * Three algorithms implemented: ODRPO KL, ODRPO Wasserstein, A2C (baseline)
 * This version supports OpenAI Gym environments with discrete action space. 
 * Policy is parameterized as a neural net that maps from state s to the PMF of π(·|s) 
 
-![Performance Graph 2](discrete.png?raw=true)
+#### Continuous Control: 
+* GAC network with ODRPO KL update function 
 
-### Continuous Control: 
+![Performance Graph 2](locomotion.png?raw=true)
