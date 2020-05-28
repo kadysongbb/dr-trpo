@@ -1,29 +1,30 @@
-## Optimistic Dristributionally Robust Policy Optimization (ODRPO)
+# Optimistic Dristributionally Robust Policy Optimization (ODRPO)
 
-### Requirements: 
+## Requirements: 
 * numpy 
 * mujuco - see: https://github.com/openai/mujoco-py
 * tensorflow
 * pytorch
 
-### How to Run: 
-The files to run ODRPO algorithms are named train_drpo*.ipynb
+## How to Run: 
+Run ipython notebook files with name train_drpo*.ipynb to train ODRPO
+Run ipython notebook files with name view_training.ipynb to see the training results
 
-### Description and Performance: 
-#### Tabular: 
+## Description and Performance: 
+### Tabular: 
 * Two algorithms implemented: ODRPO KL, ODRPO Wasserstein
 * Supports OpenAI Gym environment with discrete observation and discrete action space, i.e. Taxi-v3, Nchain-v0
 * Policy is not parametrized (i.e. no Neural Network for policies). It's represented as a list that contains PMF of π(·|s) for all states 
 
 ![Performance Graph 1](tabular.png?raw=true)
 
-#### Locomotion Tasks:
-##### Discrete Control: 
+### Locomotion Tasks:
+#### Discrete Control: 
 * Three algorithms implemented: ODRPO KL, ODRPO Wasserstein, A2C (baseline)
 * Supports OpenAI Gym environments with continuous observation and discrete action space, i.e. CartPole-v1, Acrobot-v1
 * Policy is parameterized as a neural net that maps from state s to the PMF of π(·|s) 
 
-##### Continuous Control: 
+#### Continuous Control: 
 * Supports OpenAI Gym environments with continuous observation and continous action space
 * GAC network with ODRPO KL update function 
 
