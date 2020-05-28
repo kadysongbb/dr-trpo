@@ -8,6 +8,7 @@
 
 ## How to Run: 
 Run ipython notebook files with name train_drpo*.ipynb to train ODRPO
+
 Run ipython notebook files with name view_training.ipynb to see the training results
 
 ## Description and Performance: 
