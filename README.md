@@ -1,14 +1,13 @@
 ## Optimistic Dristributionally Robust Policy Optimization (ODRPO)
 
-
-### How to Run: 
-
-
 ### Requirements: 
 * numpy 
 * mujuco - see: https://github.com/openai/mujoco-py
 * tensorflow
 * pytorch
+
+### How to Run: 
+The files to run ODRPO algorithms are named train_drpo*.ipynb
 
 ### Description and Performance: 
 #### Tabular: 
