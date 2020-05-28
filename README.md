@@ -7,8 +7,8 @@
 * pytorch
 
 ## How to Run: 
-Run ipython notebook files train_drpo*.ipynb to train ODRPO <br />
-Run ipython notebook files view_training.ipynb to see the training results
+Run train_drpo*.ipynb to train ODRPO <br />
+Run view_training.ipynb to see the training results
 
 ## Description and Performance: 
 ### Tabular: 
