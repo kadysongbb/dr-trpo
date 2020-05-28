@@ -3,9 +3,14 @@
 
 ### How to Run: 
 
-### Requirements: 
 
-### Performance: 
+### Requirements: 
+* numpy 
+* mujuco - see: https://github.com/openai/mujoco-py
+* tensorflow
+* pytorch
+
+### Description and Performance: 
 #### Tabular: 
 * Two algorithms implemented: ODRPO KL, ODRPO Wasserstein
 * Supports OpenAI Gym environment with discrete observation and discrete action space, i.e. Taxi-v3, Nchain-v0
