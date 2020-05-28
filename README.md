@@ -8,7 +8,7 @@
 
 ## How to Run: 
 Run train_drpo*.ipynb to train ODRPO <br />
-Run view_training.ipynb to see the training results
+Run view_training*.ipynb to see the training results
 
 ## Description and Performance: 
 ### Tabular: 
