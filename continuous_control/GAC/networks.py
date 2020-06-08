@@ -3,6 +3,7 @@ import tensorflow as tf
 
 from tensorflow.keras import Sequential
 from tensorflow.keras.layers import Dense
+from tensorflow.python.ops import gen_array_ops
 
 """
 File Description:
@@ -76,12 +77,12 @@ class IQNActor(tf.Module):
         )  # delta is kappa in paper
         self.optimizer = tf.keras.optimizers.Adam(0.0001)
 
-    def target_density(self, mode, advantage, beta):
+    def target_density(self, mode, advantage, beta, prob):
         """
         The density of target policy D(a|s). Comes from table 1 in the paper.
 
         Args:
-            mode: ["linear", "boltzmann"]
+            mode: ["linear", "boltzmann", "odrpo"]
             advantange: (batch_size, 1)
         Returns:
             density of D(a|s)
@@ -91,6 +92,10 @@ class IQNActor(tf.Module):
             return advantage / tf.reduce_sum(advantage)
         elif mode == "boltzmann":
             return tf.nn.softmax(advantage/beta)
+        elif mode == "odrpo":
+            numerator =  tf.math.reduce_max(tf.math.multiply(tf.exp(advantage/beta), tf.cast(prob, tf.float32)), axis=1,keepdims=True)
+            denominator = tf.reduce_sum(numerator)
+            return numerator/denominator
         else:
             raise NotImplementedError
 
@@ -132,7 +137,14 @@ class IQNActor(tf.Module):
         """
 
         taus = tf.random.uniform(tf.shape(supervise_actions))
-        weights = self.target_density(mode, advantage, beta)
+        # ODRPO mode requires previous policy probability
+        unique_actions, idx, count = gen_array_ops.unique_with_counts_v2(supervise_actions, [0])
+        num_action_samples = len(idx)
+        prob = tf.Variable(tf.zeros(num_action_samples, 1))
+        for i in range(num_action_samples):
+            prob = prob[i].assign(tf.cast(count[idx[i]]/num_action_samples, tf.float32))
+
+        weights = self.target_density(mode, advantage, beta, prob)
 
         with tf.GradientTape() as tape:
             actions = self(states, taus, supervise_actions) #(batch_size, action_dim)
