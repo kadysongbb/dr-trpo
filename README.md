@@ -13,8 +13,8 @@ Run view_training*.ipynb to see the training results
 ## Description and Performance: 
 ### Tabular: 
 * Two algorithms implemented: ODRPO KL, ODRPO Wasserstein
-* Supports OpenAI Gym environment with discrete observation and discrete action space, i.e. Taxi-v3, Nchain-v0
-* Policy is not parametrized (i.e. no Neural Network for policies). It's represented as a list that contains PMF of π(·|s) for all states 
+* Supports OpenAI Gym environments with discrete observation and discrete action space, i.e. Taxi-v3, Nchain-v0
+* Policy is not parametrized (i.e. no Neural Network for policies). It's represented as a list that contains PMFs of π(·|s) for all states 
 
 ![Performance Graph 1](tabular.png?raw=true)
 
@@ -25,7 +25,7 @@ Run view_training*.ipynb to see the training results
 * Policy is parameterized as a neural net that maps from state s to the PMF of π(·|s) 
 
 #### Continuous Control: 
+* One algorithm implemented: ODRPO KL (based on [GAC](https://github.com/gwbcho/dpo-replication))
 * Supports OpenAI Gym environments with continuous observation and continous action space
-* [GAC network](https://github.com/gwbcho/dpo-replication) with ODRPO KL update function 
 
 ![Performance Graph 2](locomotion.png?raw=true)
