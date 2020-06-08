@@ -26,6 +26,6 @@ Run view_training*.ipynb to see the training results
 
 #### Continuous Control: 
 * Supports OpenAI Gym environments with continuous observation and continous action space
-* [GAC network][https://github.com/gwbcho/dpo-replication] with ODRPO KL update function 
+* [GAC network](https://github.com/gwbcho/dpo-replication) with ODRPO KL update function 
 
 ![Performance Graph 2](locomotion.png?raw=true)
