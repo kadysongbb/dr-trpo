@@ -7,7 +7,7 @@
 * pytorch
 
 ## How to Run: 
-Run train_drpo*.ipynb to train ODRPO <br />
+Run train_drpo*.ipynb to train ODRPO (or python main.py --mode "odrpo" for continuous control) <br />
 Run view_training*.ipynb to see the training results
 
 ## Description and Performance: 
